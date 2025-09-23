@@ -8,7 +8,11 @@ type Props = {
 };
 export default function TaskNotation({ label, color, onPress }: Props) {
   return (
-    <TouchableOpacity className={`bg-[${color}] p-0.5`} onPress={onPress}>
+    <TouchableOpacity
+      className={`p-0.5`}
+      onPress={onPress}
+      style={{ backgroundColor: color }}
+    >
       <Text className="text-black text-xs">{label}</Text>
     </TouchableOpacity>
   );

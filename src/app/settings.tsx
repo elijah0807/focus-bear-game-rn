@@ -1,17 +1,25 @@
 import CustomButton from "@/components/buttons/custom-button";
 import LeaderboardTable from "@/components/core/leader-board-table";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { clearLeaderboard } from "@/store/slices/leaderboardSlice";
+import {
+  setSelectedGameMode,
+  setSelectedSound,
+  setVolume,
+} from "@/store/slices/settingsSlice";
 import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
 import { router } from "expo-router";
 import React, { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function Settings() {
-  const [selectedSound, setSelectedSound] = useState("sine");
+  const dispatch = useAppDispatch();
+  const { selectedSound, selectedGameMode, volume } = useAppSelector(
+    (state) => state.settings
+  );
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedGameMode, setSelectedGameMode] = useState("task");
   const [isDropdownOpenGameMode, setIsDropdownOpenGameMode] = useState(false);
-  const [volume, setVolume] = useState(0.2);
 
   const soundOptions = [
     "sine",
@@ -23,20 +31,38 @@ export default function Settings() {
   ];
 
   const handleSelectSound = (sound: string) => {
-    setSelectedSound(sound);
+    dispatch(setSelectedSound(sound));
     setIsDropdownOpen(false);
   };
 
   const gameModeOptions = ["task", "website"];
 
   const handleSelectGameMode = (gameMode: string) => {
-    setSelectedGameMode(gameMode);
+    dispatch(setSelectedGameMode(gameMode));
     setIsDropdownOpenGameMode(false);
   };
 
   const handleChangeVolume = (value: number) => {
-    setVolume(value);
+    dispatch(setVolume(value));
     console.log(value);
+  };
+
+  const handleClearLeaderboard = () => {
+    Alert.alert(
+      "Clear Leaderboard",
+      "Are you sure you want to clear all leaderboard entries? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Clear",
+          style: "destructive",
+          onPress: () => dispatch(clearLeaderboard()),
+        },
+      ]
+    );
   };
 
   return (
@@ -117,7 +143,9 @@ export default function Settings() {
         <Text className="text-lg text-start text-tertiary font-bold">
           Leaderboard (Top 10)
         </Text>
-        <Ionicons name="trash-outline" size={20} color="black" />
+        <TouchableOpacity onPress={handleClearLeaderboard}>
+          <Ionicons name="trash-outline" size={20} color="black" />
+        </TouchableOpacity>
       </View>
 
       <LeaderboardTable />

@@ -1,19 +1,31 @@
-import React, { useRef, useState } from "react";
+import { Task } from "@/types/api";
+import React, { useRef } from "react";
 import { Animated, Text, TouchableOpacity, View } from "react-native";
 import TaskNotation from "./task-notation";
 
 type Props = {
-  text: string;
+  task: Task;
+  isActive: boolean;
+  onPress: () => void;
+  onCurrentGoalPress: () => void;
+  onNextTaskPress: () => void;
+  onAfterWorkPress: () => void;
 };
 
-export default function StickyNote({ text }: Props) {
-  const [showNotes, setShowNotes] = useState(false);
+export default function StickyNote({
+  task,
+  isActive,
+  onPress,
+  onCurrentGoalPress,
+  onNextTaskPress,
+  onAfterWorkPress,
+}: Props) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.98)).current;
 
-  const handleShowNotes = () => {
-    const toValue = !showNotes ? 1 : 0;
-    const scaleValue = !showNotes ? 1 : 0.98;
+  const handlePress = () => {
+    const toValue = !isActive ? 1 : 0;
+    const scaleValue = !isActive ? 1 : 0.98;
 
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -27,13 +39,14 @@ export default function StickyNote({ text }: Props) {
         useNativeDriver: true,
       }),
     ]).start();
-
-    setShowNotes(!showNotes);
   };
 
   return (
     <TouchableOpacity
-      onPress={handleShowNotes}
+      onPress={() => {
+        onPress();
+        handlePress();
+      }}
       activeOpacity={0.8}
       className="w-full my-2"
     >
@@ -44,8 +57,10 @@ export default function StickyNote({ text }: Props) {
         }}
       >
         <View className="flex-col">
-          <Text className="text-base text-gray-600 font-semibold">{text}</Text>
-          {showNotes && (
+          <Text className="text-base text-gray-600 font-semibold">
+            {task.text}
+          </Text>
+          {isActive && (
             <Animated.View
               className="flex-row gap-2"
               style={{
@@ -56,17 +71,17 @@ export default function StickyNote({ text }: Props) {
               <TaskNotation
                 label="Current Goal"
                 color="#2ba59a"
-                onPress={() => {}}
+                onPress={onCurrentGoalPress}
               />
               <TaskNotation
                 label="Next Task"
                 color="#f6a900"
-                onPress={() => {}}
+                onPress={onNextTaskPress}
               />
               <TaskNotation
                 label="After Work"
                 color="#e45850"
-                onPress={() => {}}
+                onPress={onAfterWorkPress}
               />
             </Animated.View>
           )}
