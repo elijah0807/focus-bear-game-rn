@@ -1,5 +1,8 @@
+import CustomButton from "@/components/buttons/custom-button";
 import LeaderboardTable from "@/components/core/leader-board-table";
 import { Ionicons } from "@expo/vector-icons";
+import Slider from "@react-native-community/slider";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
@@ -8,6 +11,7 @@ export default function Settings() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedGameMode, setSelectedGameMode] = useState("task");
   const [isDropdownOpenGameMode, setIsDropdownOpenGameMode] = useState(false);
+  const [volume, setVolume] = useState(0.2);
 
   const soundOptions = [
     "sine",
@@ -28,6 +32,11 @@ export default function Settings() {
   const handleSelectGameMode = (gameMode: string) => {
     setSelectedGameMode(gameMode);
     setIsDropdownOpenGameMode(false);
+  };
+
+  const handleChangeVolume = (value: number) => {
+    setVolume(value);
+    console.log(value);
   };
 
   return (
@@ -91,6 +100,19 @@ export default function Settings() {
           ))}
         </View>
       )}
+      <Text className="text-lg text-start text-tertiary font-bold my-2">
+        Volume
+      </Text>
+      <Slider
+        className="w-full"
+        minimumValue={0}
+        maximumValue={1}
+        minimumTrackTintColor="#0275ff"
+        maximumTrackTintColor="#efefef"
+        onValueChange={handleChangeVolume}
+        value={volume}
+      />
+
       <View className="flex-row  gap-2 mt-4 mb-2">
         <Text className="text-lg text-start text-tertiary font-bold">
           Leaderboard (Top 10)
@@ -99,6 +121,11 @@ export default function Settings() {
       </View>
 
       <LeaderboardTable />
+      <CustomButton
+        className="w-24 mt-4"
+        title="Back"
+        onPress={() => router.back()}
+      />
     </ScrollView>
   );
 }
