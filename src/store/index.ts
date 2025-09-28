@@ -2,6 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 import leaderboardReducer from './slices/leaderboardSlice';
+import loadingReducer from './slices/loadingSlice';
+import scoreReducer from './slices/scoreSlice';
 import settingsReducer from './slices/settingsSlice';
 import tasksReducer from './slices/tasksSlice';
 
@@ -13,6 +15,8 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   leaderboard: leaderboardReducer,
+  loading: loadingReducer,
+  score: scoreReducer,
   settings: settingsReducer,
   tasks: tasksReducer,
 });

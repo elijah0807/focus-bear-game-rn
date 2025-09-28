@@ -1,7 +1,8 @@
+import { AnsweredTask } from "@/store/slices/scoreSlice";
 import { Task } from "@/types/api";
 import React, { useRef } from "react";
 import { Animated, Text, TouchableOpacity, View } from "react-native";
-import TaskNotation from "./task-notation";
+import TaskNotation from "./TaskNotation";
 
 type Props = {
   task: Task;
@@ -10,6 +11,8 @@ type Props = {
   onCurrentGoalPress: () => void;
   onNextTaskPress: () => void;
   onAfterWorkPress: () => void;
+  hasBeenAnswered: boolean;
+  answeredTask: AnsweredTask | null;
 };
 
 export default function StickyNote({
@@ -19,6 +22,8 @@ export default function StickyNote({
   onCurrentGoalPress,
   onNextTaskPress,
   onAfterWorkPress,
+  hasBeenAnswered,
+  answeredTask,
 }: Props) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.98)).current;
@@ -43,12 +48,16 @@ export default function StickyNote({
 
   return (
     <TouchableOpacity
-      onPress={() => {
-        onPress();
-        handlePress();
-      }}
+      onPress={
+        hasBeenAnswered
+          ? undefined
+          : () => {
+              onPress();
+              handlePress();
+            }
+      }
       activeOpacity={0.8}
-      className="w-full my-2"
+      className={`w-full my-2 ${hasBeenAnswered ? "opacity-50" : ""}`}
     >
       <Animated.View
         className="bg-[#fef9c3] p-5 rounded-md relative border-[#ffef99] border-2 shadow-xs"
@@ -60,7 +69,21 @@ export default function StickyNote({
           <Text className="text-base text-gray-600 font-semibold">
             {task.text}
           </Text>
-          {isActive && (
+          {hasBeenAnswered && (
+            <View className="flex-row gap-2 mt-2 justify-between">
+              <Text
+                className={`text-sm ${answeredTask?.selectedBucket === task.correctBucket ? "text-green-600" : "text-gray-600"}`}
+              >
+                Sorted: {answeredTask?.selectedBucket}
+              </Text>
+              {answeredTask?.selectedBucket !== task.correctBucket && (
+                <Text className={`text-sm text-red-600`}>
+                  Correct: {task.correctBucket}
+                </Text>
+              )}
+            </View>
+          )}
+          {isActive && !hasBeenAnswered && (
             <Animated.View
               className="flex-row gap-2"
               style={{
@@ -71,17 +94,17 @@ export default function StickyNote({
               <TaskNotation
                 label="Current Goal"
                 color="#2ba59a"
-                onPress={onCurrentGoalPress}
+                onPress={hasBeenAnswered ? () => {} : onCurrentGoalPress}
               />
               <TaskNotation
                 label="Next Task"
                 color="#f6a900"
-                onPress={onNextTaskPress}
+                onPress={hasBeenAnswered ? () => {} : onNextTaskPress}
               />
               <TaskNotation
                 label="After Work"
                 color="#e45850"
-                onPress={onAfterWorkPress}
+                onPress={hasBeenAnswered ? () => {} : onAfterWorkPress}
               />
             </Animated.View>
           )}

@@ -1,6 +1,7 @@
 import { taskApi } from '@/services/api';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { clearError, clearTasks, setError, setLoading, setTasks } from '@/store/slices/tasksSlice';
+import { hideLoading, showLoading } from '@/store/slices/loadingSlice';
+import { clearError, clearTasks, setError, setTasks } from '@/store/slices/tasksSlice';
 import { GenerateTasksRequest, Task } from '@/types/api';
 import { router } from 'expo-router';
 
@@ -15,15 +16,15 @@ interface UseTaskGenerationReturn {
 
 export const useTaskGeneration = (): UseTaskGenerationReturn => {
   const dispatch = useAppDispatch();
-  const { tasks, isLoading, error } = useAppSelector((state) => state.tasks);
+  const { tasks, error } = useAppSelector((state) => state.tasks);
+  const { isLoading } = useAppSelector((state) => state.loading);
 
   const generateTasks = async (payload: GenerateTasksRequest) => {
-    dispatch(setLoading(true));
+    dispatch(showLoading('Generating tasks...'));
     dispatch(setError(null));
     
     try {
       const response = await taskApi.generateTasks(payload);
-      
       if (response.tasks.length > 0) {
         dispatch(setTasks(response.tasks));
         router.push("/tasks"); //navigate to tasks screen
@@ -35,7 +36,7 @@ export const useTaskGeneration = (): UseTaskGenerationReturn => {
       dispatch(setError(errorMessage));
       console.error('Task generation error:', err);
     } finally {
-      dispatch(setLoading(false));
+      dispatch(hideLoading());
     }
   };
 

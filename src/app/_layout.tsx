@@ -1,4 +1,5 @@
-import DefaultAppBar from "@/components/core/app-bar";
+import DefaultAppBar from "@/components/core/AppBar";
+// import LoadingOverlay from "@/components/core/LoadingOverlay";
 import { persistor, store } from "@/store";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -71,6 +72,7 @@ export default function RootLayout() {
               }}
             />
           </Stack>
+          {/* <LoadingOverlay /> */}
         </View>
       </PersistGate>
     </Provider>

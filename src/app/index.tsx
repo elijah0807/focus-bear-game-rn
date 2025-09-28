@@ -1,5 +1,5 @@
 import CustomButton from "@/components/buttons/custom-button";
-import ChatBubble from "@/components/core/chat-bubble";
+import ChatBubble from "@/components/core/ChatBubble";
 import { useTaskGeneration } from "@/hooks/useTaskGeneration";
 import { useAppSelector } from "@/store/hooks";
 import { capitalizeFirstLetterOnly } from "@/utils/stringUtils";
@@ -8,8 +8,9 @@ import { Alert, Text, TextInput, View } from "react-native";
 
 export default function Index() {
   const [goal, setGoal] = useState("");
-  const { isLoading, error, generateTasks } = useTaskGeneration();
+  const { error, generateTasks } = useTaskGeneration();
   const { selectedGameMode } = useAppSelector((state) => state.settings);
+  const { isLoading } = useAppSelector((state) => state.loading);
 
   const handleGenerateTasks = async () => {
     if (!goal.trim()) {

@@ -1,5 +1,5 @@
 import CustomButton from "@/components/buttons/custom-button";
-import LeaderboardTable from "@/components/core/leader-board-table";
+import LeaderboardTable from "@/components/core/LeaderBoardTable";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearLeaderboard } from "@/store/slices/leaderboardSlice";
 import {

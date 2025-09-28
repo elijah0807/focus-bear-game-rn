@@ -6,7 +6,7 @@ export interface LeaderboardEntry {
   accuracy: number;
   score: number;
   completedTasks: number;
-  totalTime: number; // in seconds
+  totalTime: number;
   date: string;
   gameMode: 'task' | 'website';
 }

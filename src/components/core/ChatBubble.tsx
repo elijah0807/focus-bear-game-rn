@@ -2,7 +2,7 @@ import { useAppSelector } from "@/store/hooks";
 import { capitalizeFirstLetterOnly } from "@/utils/stringUtils";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import PrimaryTextView from "./primary-text-view";
+import PrimaryTextView from "./PrimaryTextView";
 
 type Props = {
   message: string;
