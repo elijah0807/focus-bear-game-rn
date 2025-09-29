@@ -79,10 +79,8 @@ export default function TaskScreen() {
   };
 
   const handleLastTaskAnswer = (currentTask: Task, selectedBucket: string) => {
-    // Since we know this is the last task, use the updated count
     const updatedAnsweredTasksCount = answeredTasks.length + 1;
 
-    // Calculate accuracy including the current answer that was just added
     const updatedAnsweredTasks = [
       ...answeredTasks,
       {
@@ -91,9 +89,13 @@ export default function TaskScreen() {
       },
     ];
     const accuracy = calculateAccuracy(updatedAnsweredTasks);
+    console.log("Accuracy", accuracy);
+    const isCorrect = currentTask.correctBucket === selectedBucket;
+    const currentAnswerScore = isCorrect ? 50 : -50;
+    const updatedTotalScore = totalScore + currentAnswerScore;
 
     addEntry({
-      score: totalScore,
+      score: updatedTotalScore,
       completedTasks: updatedAnsweredTasksCount,
       totalTime: 0,
       gameMode: selectedGameMode as "task" | "website",

@@ -9,7 +9,6 @@ type Props = {
   onGotIt?: () => void;
   showGotIt?: boolean;
   showMode?: boolean;
-  mode?: string;
 };
 
 export default function ChatBubble({
@@ -17,7 +16,6 @@ export default function ChatBubble({
   onGotIt,
   showGotIt = false,
   showMode = false,
-  mode = "",
 }: Props) {
   const { selectedGameMode } = useAppSelector((state) => state.settings);
   return (

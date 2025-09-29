@@ -2,7 +2,7 @@ import { useAppSelector } from "@/store/hooks";
 import React from "react";
 import { ActivityIndicator, Modal, Text, View } from "react-native";
 
-const LoadingOverlay: React.FC = () => {
+export default function LoadingOverlay() {
   const { isLoading, loadingMessage } = useAppSelector(
     (state) => state.loading
   );
@@ -26,6 +26,4 @@ const LoadingOverlay: React.FC = () => {
       </View>
     </Modal>
   );
-};
-
-export default LoadingOverlay;
+}

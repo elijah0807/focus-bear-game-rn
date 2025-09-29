@@ -2,7 +2,7 @@ import { useAppSelector } from "@/store/hooks";
 import React from "react";
 import { Text, View } from "react-native";
 
-const LeaderboardTable = () => {
+export default function LeaderboardTable() {
   const entries = useAppSelector((state) => state.leaderboard.entries);
 
   // Format date for display
@@ -63,7 +63,7 @@ const LeaderboardTable = () => {
             {entry.score}
           </Text>
           <Text className="w-[15%] text-center text-sm  text-gray-800 font-bold">
-            {Math.round(entry.accuracy * 100)}%
+            {Math.round(entry.accuracy)}%
           </Text>
           <Text className="w-[15%] text-center text-sm  text-gray-800 font-semibold">
             {entry.gameMode === "task" ? "Task" : "Website"}
@@ -75,6 +75,4 @@ const LeaderboardTable = () => {
       ))}
     </View>
   );
-};
-
-export default LeaderboardTable;
+}

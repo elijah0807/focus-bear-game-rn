@@ -8,6 +8,7 @@ import {
   setVolume,
 } from "@/store/slices/settingsSlice";
 import { Ionicons } from "@expo/vector-icons";
+import { Checkbox } from "@futurejj/react-native-checkbox";
 import Slider from "@react-native-community/slider";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -20,7 +21,7 @@ export default function Settings() {
   );
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDropdownOpenGameMode, setIsDropdownOpenGameMode] = useState(false);
-
+  const [vibrate, setVibrate] = useState(false);
   const soundOptions = [
     "sine",
     "square",
@@ -129,15 +130,43 @@ export default function Settings() {
       <Text className="text-lg text-start text-tertiary font-bold my-2">
         Volume
       </Text>
-      <Slider
-        className="w-full"
-        minimumValue={0}
-        maximumValue={1}
-        minimumTrackTintColor="#0275ff"
-        maximumTrackTintColor="#efefef"
-        onValueChange={handleChangeVolume}
-        value={volume}
-      />
+      <View className="mb-2">
+        <Slider
+          className="w-full"
+          minimumValue={0}
+          maximumValue={1}
+          minimumTrackTintColor="#0275ff"
+          maximumTrackTintColor="#efefef"
+          onValueChange={handleChangeVolume}
+          value={volume}
+        />
+        <Text className="text-xm text-start text-tertiary font-bold">
+          {Math.round(volume * 100)}%
+        </Text>
+      </View>
+      <View className="flex-row items-center gap-2 justify-normal">
+        <Checkbox
+          status={vibrate ? "checked" : "unchecked"}
+          onPress={() => setVibrate(!vibrate)}
+        />
+        <Text className="text-lg text-start text-tertiary font-bold">
+          Vibration fallback
+        </Text>
+      </View>
+
+      <View className="flex-row items-center gap-4 justify-normal mb-4">
+        <CustomButton title="Apply" onPress={() => {}} className="px-4 py-1" />
+        <CustomButton
+          title="Test Correct"
+          onPress={() => {}}
+          className="px-4 py-1 bg-white"
+        />
+        <CustomButton
+          title="Test Wrong"
+          onPress={() => {}}
+          className="px-4 py-1 bg-white"
+        />
+      </View>
 
       <View className="flex-row  gap-2 mt-4 mb-2">
         <Text className="text-lg text-start text-tertiary font-bold">
