@@ -18,9 +18,7 @@ export default function PrimaryTextView({
     <View
       className={`${color ? `${color}` : "bg-primary"} p-2 rounded-md shadow-md ${className}`}
     >
-      <Text className={`text-black text-xs font-bold ${textClassName}`}>
-        {text}
-      </Text>
+      <Text className={`text-black font-bold ${textClassName}`}>{text}</Text>
     </View>
   );
 }

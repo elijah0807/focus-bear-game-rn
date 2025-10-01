@@ -1,18 +1,27 @@
 import CustomButton from "@/components/buttons/custom-button";
-import LeaderboardTable from "@/components/core/leader-board-table";
+import LeaderboardTable from "@/components/core/LeaderBoardTable";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { clearLeaderboard } from "@/store/slices/leaderboardSlice";
+import {
+  setSelectedGameMode,
+  setSelectedSound,
+  setVolume,
+} from "@/store/slices/settingsSlice";
 import { Ionicons } from "@expo/vector-icons";
+import { Checkbox } from "@futurejj/react-native-checkbox";
 import Slider from "@react-native-community/slider";
 import { router } from "expo-router";
 import React, { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function Settings() {
-  const [selectedSound, setSelectedSound] = useState("sine");
+  const dispatch = useAppDispatch();
+  const { selectedSound, selectedGameMode, volume } = useAppSelector(
+    (state) => state.settings
+  );
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedGameMode, setSelectedGameMode] = useState("task");
   const [isDropdownOpenGameMode, setIsDropdownOpenGameMode] = useState(false);
-  const [volume, setVolume] = useState(0.2);
-
+  const [vibrate, setVibrate] = useState(false);
   const soundOptions = [
     "sine",
     "square",
@@ -23,20 +32,38 @@ export default function Settings() {
   ];
 
   const handleSelectSound = (sound: string) => {
-    setSelectedSound(sound);
+    dispatch(setSelectedSound(sound));
     setIsDropdownOpen(false);
   };
 
   const gameModeOptions = ["task", "website"];
 
   const handleSelectGameMode = (gameMode: string) => {
-    setSelectedGameMode(gameMode);
+    dispatch(setSelectedGameMode(gameMode));
     setIsDropdownOpenGameMode(false);
   };
 
   const handleChangeVolume = (value: number) => {
-    setVolume(value);
+    dispatch(setVolume(value));
     console.log(value);
+  };
+
+  const handleClearLeaderboard = () => {
+    Alert.alert(
+      "Clear Leaderboard",
+      "Are you sure you want to clear all leaderboard entries? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Clear",
+          style: "destructive",
+          onPress: () => dispatch(clearLeaderboard()),
+        },
+      ]
+    );
   };
 
   return (
@@ -103,21 +130,51 @@ export default function Settings() {
       <Text className="text-lg text-start text-tertiary font-bold my-2">
         Volume
       </Text>
-      <Slider
-        className="w-full"
-        minimumValue={0}
-        maximumValue={1}
-        minimumTrackTintColor="#0275ff"
-        maximumTrackTintColor="#efefef"
-        onValueChange={handleChangeVolume}
-        value={volume}
-      />
+      <View className="mb-2">
+        <Slider
+          className="w-full"
+          minimumValue={0}
+          maximumValue={1}
+          minimumTrackTintColor="#0275ff"
+          maximumTrackTintColor="#efefef"
+          onValueChange={handleChangeVolume}
+          value={volume}
+        />
+        <Text className="text-xm text-start text-tertiary font-bold">
+          {Math.round(volume * 100)}%
+        </Text>
+      </View>
+      <View className="flex-row items-center gap-2 justify-normal">
+        <Checkbox
+          status={vibrate ? "checked" : "unchecked"}
+          onPress={() => setVibrate(!vibrate)}
+        />
+        <Text className="text-lg text-start text-tertiary font-bold">
+          Vibration fallback
+        </Text>
+      </View>
+
+      <View className="flex-row items-center gap-4 justify-normal mb-4">
+        <CustomButton title="Apply" onPress={() => {}} className="px-4 py-1" />
+        <CustomButton
+          title="Test Correct"
+          onPress={() => {}}
+          className="px-4 py-1 bg-white"
+        />
+        <CustomButton
+          title="Test Wrong"
+          onPress={() => {}}
+          className="px-4 py-1 bg-white"
+        />
+      </View>
 
       <View className="flex-row  gap-2 mt-4 mb-2">
         <Text className="text-lg text-start text-tertiary font-bold">
           Leaderboard (Top 10)
         </Text>
-        <Ionicons name="trash-outline" size={20} color="black" />
+        <TouchableOpacity onPress={handleClearLeaderboard}>
+          <Ionicons name="trash-outline" size={20} color="black" />
+        </TouchableOpacity>
       </View>
 
       <LeaderboardTable />

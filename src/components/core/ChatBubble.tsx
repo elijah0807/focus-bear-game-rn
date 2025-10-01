@@ -1,13 +1,14 @@
+import { useAppSelector } from "@/store/hooks";
+import { capitalizeFirstLetterOnly } from "@/utils/stringUtils";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import PrimaryTextView from "./primary-text-view";
+import PrimaryTextView from "./PrimaryTextView";
 
 type Props = {
   message: string;
   onGotIt?: () => void;
   showGotIt?: boolean;
   showMode?: boolean;
-  mode?: string;
 };
 
 export default function ChatBubble({
@@ -15,8 +16,8 @@ export default function ChatBubble({
   onGotIt,
   showGotIt = false,
   showMode = false,
-  mode = "",
 }: Props) {
+  const { selectedGameMode } = useAppSelector((state) => state.settings);
   return (
     <View className="flex-row flex-wrap w-full items-start justify-center gap-2">
       <Image
@@ -44,7 +45,11 @@ export default function ChatBubble({
           </View>
         </View>
       </View>
-      {showMode && <PrimaryTextView text="Task Mode" />}
+      {showMode && (
+        <PrimaryTextView
+          text={`${capitalizeFirstLetterOnly(selectedGameMode)} Mode`}
+        />
+      )}
     </View>
   );
 }

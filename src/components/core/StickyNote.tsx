@@ -1,19 +1,36 @@
-import React, { useRef, useState } from "react";
+import { AnsweredTask } from "@/store/slices/scoreSlice";
+import { Task } from "@/types/api";
+import React, { useRef } from "react";
 import { Animated, Text, TouchableOpacity, View } from "react-native";
-import TaskNotation from "./task-notation";
+import TaskNotation from "./TaskNotation";
 
 type Props = {
-  text: string;
+  task: Task;
+  isActive: boolean;
+  onPress: () => void;
+  onCurrentGoalPress: () => void;
+  onNextTaskPress: () => void;
+  onAfterWorkPress: () => void;
+  hasBeenAnswered: boolean;
+  answeredTask: AnsweredTask | null;
 };
 
-export default function StickyNote({ text }: Props) {
-  const [showNotes, setShowNotes] = useState(false);
+export default function StickyNote({
+  task,
+  isActive,
+  onPress,
+  onCurrentGoalPress,
+  onNextTaskPress,
+  onAfterWorkPress,
+  hasBeenAnswered,
+  answeredTask,
+}: Props) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.98)).current;
 
-  const handleShowNotes = () => {
-    const toValue = !showNotes ? 1 : 0;
-    const scaleValue = !showNotes ? 1 : 0.98;
+  const handlePress = () => {
+    const toValue = !isActive ? 1 : 0;
+    const scaleValue = !isActive ? 1 : 0.98;
 
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -27,15 +44,20 @@ export default function StickyNote({ text }: Props) {
         useNativeDriver: true,
       }),
     ]).start();
-
-    setShowNotes(!showNotes);
   };
 
   return (
     <TouchableOpacity
-      onPress={handleShowNotes}
+      onPress={
+        hasBeenAnswered
+          ? undefined
+          : () => {
+              onPress();
+              handlePress();
+            }
+      }
       activeOpacity={0.8}
-      className="w-full my-2"
+      className={`w-full my-2 ${hasBeenAnswered ? "opacity-50" : ""}`}
     >
       <Animated.View
         className="bg-[#fef9c3] p-5 rounded-md relative border-[#ffef99] border-2 shadow-xs"
@@ -44,8 +66,24 @@ export default function StickyNote({ text }: Props) {
         }}
       >
         <View className="flex-col">
-          <Text className="text-base text-gray-600 font-semibold">{text}</Text>
-          {showNotes && (
+          <Text className="text-base text-gray-600 font-semibold">
+            {task.text}
+          </Text>
+          {hasBeenAnswered && (
+            <View className="flex-row gap-2 mt-2 justify-between">
+              <Text
+                className={`text-sm ${answeredTask?.selectedBucket === task.correctBucket ? "text-green-600" : "text-gray-600"}`}
+              >
+                Sorted: {answeredTask?.selectedBucket}
+              </Text>
+              {answeredTask?.selectedBucket !== task.correctBucket && (
+                <Text className={`text-sm text-red-600`}>
+                  Correct: {task.correctBucket}
+                </Text>
+              )}
+            </View>
+          )}
+          {isActive && !hasBeenAnswered && (
             <Animated.View
               className="flex-row gap-2"
               style={{
@@ -56,17 +94,17 @@ export default function StickyNote({ text }: Props) {
               <TaskNotation
                 label="Current Goal"
                 color="#2ba59a"
-                onPress={() => {}}
+                onPress={hasBeenAnswered ? () => {} : onCurrentGoalPress}
               />
               <TaskNotation
                 label="Next Task"
                 color="#f6a900"
-                onPress={() => {}}
+                onPress={hasBeenAnswered ? () => {} : onNextTaskPress}
               />
               <TaskNotation
                 label="After Work"
                 color="#e45850"
-                onPress={() => {}}
+                onPress={hasBeenAnswered ? () => {} : onAfterWorkPress}
               />
             </Animated.View>
           )}
