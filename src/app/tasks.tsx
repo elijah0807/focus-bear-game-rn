@@ -16,7 +16,8 @@ import {
 } from "@/utils/generalUtils";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { ScrollView, TouchableOpacity, View } from "react-native";
+import { ScrollView, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function TaskScreen() {
   const { tasks } = useTaskGeneration();
@@ -29,6 +30,11 @@ export default function TaskScreen() {
   const dispatch = useAppDispatch();
   const { answeredTasks } = useAppSelector((state) => state.score);
   const { selectedGameMode } = useAppSelector((state) => state.settings);
+
+  // Drag and drop state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOverBucket, setDragOverBucket] = useState<string | null>(null);
+  const [draggedTask, setDraggedTask] = useState<Task | null>(null);
 
   const handleWin = () => {
     setShowHurray(true);
@@ -78,6 +84,34 @@ export default function TaskScreen() {
     }
   };
 
+  // Drag and drop handlers
+  const handleDragStart = (task: Task) => {
+    setIsDragging(true);
+    setDraggedTask(task);
+    setActiveTask(task);
+  };
+
+  const handleDragOver = (bucket: string | null) => {
+    setDragOverBucket(bucket);
+  };
+
+  const handleDragEnd = (bucket: string) => {
+    setIsDragging(false);
+    setDragOverBucket(null);
+
+    if (draggedTask) {
+      if (bucket === "Current Goal") {
+        handleCurrentGoalPress(draggedTask);
+      } else if (bucket === "Next Task") {
+        handleNextTaskPress(draggedTask);
+      } else if (bucket === "After Work") {
+        handleAfterWorkPress(draggedTask);
+      }
+    }
+    setDraggedTask(null);
+    setActiveTask(null);
+  };
+
   const handleLastTaskAnswer = (currentTask: Task, selectedBucket: string) => {
     const updatedAnsweredTasksCount = answeredTasks.length + 1;
 
@@ -106,54 +140,65 @@ export default function TaskScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background p-4 ">
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <ChatBubble
-          message="Welcome! Drag sticky notes into buckets. Focus a note to reveal quick-send buttons."
-          onGotIt={() => {}}
-          showGotIt={true}
-          showMode={true}
-        />
-        <View className="flex-row gap-6 my-4 justify-center">
-          <PrimaryTextView text={`Points: ${totalScore}`} />
-          <PrimaryTextView
-            text={`Max Points: ${highestScore}`}
-            color="bg-background"
-            textClassName="text-base"
+    <GestureHandlerRootView className="flex-1">
+      <View className="flex-1 bg-background p-4 ">
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <ChatBubble
+            message="Welcome! Drag sticky notes into buckets. Focus a note to reveal quick-send buttons."
+            onGotIt={() => {}}
+            showGotIt={true}
+            showMode={true}
+          />
+          <View className="flex-row gap-6 my-4 justify-center">
+            <PrimaryTextView text={`Points: ${totalScore}`} />
+            <PrimaryTextView
+              text={`Max Points: ${highestScore}`}
+              color="bg-background"
+              textClassName="text-base"
+            />
+          </View>
+          {tasks.map((task, index) => (
+            <StickyNote
+              key={index}
+              task={task}
+              isActive={activeTask?.id === task.id}
+              answeredTask={getAnsweredTask(answeredTasks, task.id)}
+              hasBeenAnswered={hasBeenAnswered(answeredTasks, task.id)}
+              onPress={() => {
+                if (activeTask?.id === task.id) {
+                  setActiveTask(null);
+                } else {
+                  setActiveTask(task);
+                }
+              }}
+              onCurrentGoalPress={() => handleCurrentGoalPress(task)}
+              onNextTaskPress={() => handleNextTaskPress(task)}
+              onAfterWorkPress={() => handleAfterWorkPress(task)}
+              onDragStart={() => handleDragStart(task)}
+              onDragEnd={handleDragEnd}
+              onDragOver={handleDragOver}
+            />
+          ))}
+        </ScrollView>
+        <View className="flex-row gap-2 bg-gray-200">
+          <CircleSmile
+            color="#2ba59a"
+            label="Current Goal"
+            isDragOver={isDragging && dragOverBucket === "Current Goal"}
+          />
+          <CircleSmile
+            color="#f6a900"
+            label="Next Task"
+            isDragOver={isDragging && dragOverBucket === "Next Task"}
+          />
+          <CircleSmile
+            color="#e45850"
+            label="After Work"
+            isDragOver={isDragging && dragOverBucket === "After Work"}
           />
         </View>
-        {tasks.map((task, index) => (
-          <StickyNote
-            key={index}
-            task={task}
-            isActive={activeTask?.id === task.id}
-            answeredTask={getAnsweredTask(answeredTasks, task.id)}
-            hasBeenAnswered={hasBeenAnswered(answeredTasks, task.id)}
-            onPress={() => {
-              if (activeTask?.id === task.id) {
-                setActiveTask(null);
-              } else {
-                setActiveTask(task);
-              }
-            }}
-            onCurrentGoalPress={() => handleCurrentGoalPress(task)}
-            onNextTaskPress={() => handleNextTaskPress(task)}
-            onAfterWorkPress={() => handleAfterWorkPress(task)}
-          />
-        ))}
-      </ScrollView>
-      <View className="flex-row gap-2 bg-gray-200">
-        <TouchableOpacity onPress={() => router.push("/task-result")}>
-          <CircleSmile color="#2ba59a" label="Current Goal" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/task-result")}>
-          <CircleSmile color="#f6a900" label="Next Task" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/task-result")}>
-          <CircleSmile color="#e45850" label="After Work" />
-        </TouchableOpacity>
+        {showHurray && <HurrayWinAnimation />}
       </View>
-      {showHurray && <HurrayWinAnimation />}
-    </View>
+    </GestureHandlerRootView>
   );
 }

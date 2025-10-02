@@ -1,15 +1,24 @@
 import React, { useEffect, useRef } from "react";
 import { Animated, Text, View } from "react-native";
+import ReanimatedAnimated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 import Svg, { Circle } from "react-native-svg";
 
 export default function CircleSmile({
   color,
   label,
+  isDragOver = false,
 }: {
   color: string;
   label: string;
+  isDragOver?: boolean;
 }) {
   const blinkAnimation = useRef(new Animated.Value(1)).current;
+  const scale = useSharedValue(1);
+  const borderWidth = useSharedValue(3);
 
   useEffect(() => {
     const blink = () => {
@@ -34,8 +43,28 @@ export default function CircleSmile({
     setTimeout(blink, 1000);
   }, [blinkAnimation]);
 
+  // Handle drag over effects
+  useEffect(() => {
+    if (isDragOver) {
+      scale.value = withSpring(1.1);
+      borderWidth.value = withSpring(6);
+    } else {
+      scale.value = withSpring(1);
+      borderWidth.value = withSpring(3);
+    }
+  }, [isDragOver, scale, borderWidth]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
   return (
-    <View className="items-center relative">
+    <ReanimatedAnimated.View
+      style={animatedStyle}
+      className="items-center relative"
+    >
       {/* Bear Face + Ears */}
       <Svg height="120" width="120">
         {/* Face Circle */}
@@ -44,7 +73,7 @@ export default function CircleSmile({
           cy="60"
           r="50"
           stroke={color}
-          strokeWidth="3"
+          strokeWidth={isDragOver ? 6 : 3}
           strokeDasharray="8 6"
           fill="none"
         />
@@ -104,6 +133,6 @@ export default function CircleSmile({
       <Text className="absolute bottom-6 text-xs font-semibold text-black">
         {label}
       </Text>
-    </View>
+    </ReanimatedAnimated.View>
   );
 }
